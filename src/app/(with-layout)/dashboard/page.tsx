@@ -1,10 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import { Container, Row, Col } from "reactstrap";
+import { Row, Col } from "reactstrap";
 import Widget from "@components/DashboardEcommerce/Widgets";
 import BestSellingProducts from "@components/DashboardEcommerce/BestSellingProducts";
-import RecentActivity from "@components/DashboardEcommerce/RecentActivity";
 import RecentOrders from "@components/DashboardEcommerce/RecentOrders";
 import Revenue from "@components/DashboardEcommerce/Revenue";
 import SalesByLocations from "@components/DashboardEcommerce/SalesByLocations";
@@ -17,6 +16,7 @@ const Dashboard = () => {
   const toggleRightColumn = () => {
     setRightColumn(!rightColumn);
   };
+
   return (
     <Row>
       <Col>

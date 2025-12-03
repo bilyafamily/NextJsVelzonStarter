@@ -3,6 +3,7 @@ import NextAuth, { DefaultSession } from "next-auth";
 declare module "next-auth" {
   interface Session {
     accessToken?: string;
+    microsoftGraphToken?: string;
     idToken?: string;
     provider?: string;
     user: {
@@ -20,5 +21,6 @@ declare module "next-auth/jwt" {
     provider?: string;
     accessToken?: string;
     idToken?: string;
+    microsoftGraphToken?: string;
   }
 }

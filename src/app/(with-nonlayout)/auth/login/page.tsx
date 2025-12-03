@@ -16,7 +16,7 @@ import {
   Spinner,
 } from "reactstrap";
 import ParticlesAuth from "../ParticlesAuth";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 
 import { useDispatch } from "react-redux";
@@ -30,10 +30,16 @@ const logoLight = "/images/logo.png";
 import Image from "next/image";
 
 const Login = () => {
+  const searchParams = useSearchParams();
+
   const dispatch: any = useDispatch();
   const [error, setError] = useState<string | null>(null);
 
   const router = useRouter();
+
+  const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
+
+  console.log(callbackUrl);
 
   const [passwordShow, setPasswordShow] = useState<boolean>(false);
   const [loader, setLoader] = useState<boolean>(false);
@@ -71,8 +77,12 @@ const Login = () => {
     },
   });
 
-  const handleSignIn = (type: any) => {
-    dispatch(socialLogin(type, router));
+  const handleAzureLogin = async () => {
+    console.log("CALLLED");
+    await signIn("microsoft-entra-id", {
+      redirect: true,
+      redirectTo: "/dashboard",
+    });
   };
 
   return (
@@ -206,12 +216,7 @@ const Login = () => {
                             color="success"
                             disabled={loader}
                             className="btn btn-info w-100"
-                            onClick={async () => {
-                              await signIn("azure-ad", {
-                                redirect: true,
-                                callbackUrl: "/dashboard",
-                              });
-                            }}
+                            onClick={handleAzureLogin}
                           >
                             {/* {loader && (
                               <Spinner size="sm" className="me-2">

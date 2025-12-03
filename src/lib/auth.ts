@@ -1,13 +1,46 @@
 import axios from "axios";
 import NextAuth from "next-auth";
 import "next-auth/jwt";
-import AzureADProvider from "next-auth/providers/azure-ad";
+import AzureADProvider from "next-auth/providers/microsoft-entra-id";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { AuthResponse } from "src/types/auth";
-import { ResponseDto } from "src/types/common";
+import { AuthResponse, JWTToken } from "src/types/auth";
+
+export const generateAccessToken = async (
+  refreshToken: string,
+  scope: string
+) => {
+  try {
+    const url = `https://login.microsoftonline.com/${process.env.AZURE_AD_TENANT_ID}/oauth2/v2.0/token`;
+    const response = await fetch(url, {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      method: "POST",
+      body:
+        `grant_type=refresh_token` +
+        `&client_secret=${process.env.AZURE_AD_CLIENT_SECRET}` +
+        `&refresh_token=${refreshToken}` +
+        `&client_id=${process.env.AZURE_AD_CLIENT_ID}` +
+        `&scope=${scope}`,
+    });
+
+    const refreshedTokens = await response.json();
+
+    if (!response.ok) {
+      throw refreshedTokens;
+    }
+
+    return refreshedTokens.access_token;
+  } catch (error) {
+    return {
+      error: "RefreshAccessTokenError",
+    };
+  }
+};
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  debug: !!process.env.AUTH_DEBUG,
+  // debug: !!process.env.AUTH_DEBUG,
+  debug: process.env.NODE_ENV === "development",
   providers: [
     AzureADProvider({
       clientId: process.env.AZURE_AD_CLIENT_ID || "",
@@ -15,7 +48,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       issuer: `https://login.microsoftonline.com/${process.env.AZURE_AD_TENANT_ID}/v2.0`,
       authorization: {
         params: {
-          scope: "openid profile email offline_access",
+          scope: "openid profile email offline_access user.read",
         },
       },
     }),
@@ -43,8 +76,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           }
 
           return {
-            id: response.data.result.userId,
-            email: response.data.result.email,
+            id: response.data.result?.userId,
+            email: response.data.result?.email,
             name: response.data.result.name || response.data.result.email,
             provider: "credentials",
             accessToken: response.data.result.token,
@@ -65,8 +98,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async jwt({ token, account, user }: any) {
       if (account) {
         token.idToken = account.id_token as string;
-        token.accessToken = account.access_token as string;
+        token.microsoftGraphToken = account.access_token as string;
         token.provider = account.provider;
+        token.accessToken = await generateAccessToken(
+          account.refresh_token,
+          `api://ac08175c-4e88-4c68-b5fd-85dee723fe40/access_as_user`
+        );
       }
       if (user && "provider" in user) {
         token.provider = user.provider;
@@ -76,6 +113,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
     async session({ session, token }: any) {
       session.accessToken = token.accessToken as string;
+      session.microsoftGraphToken = token.microsoftGraphToken as string;
       session.idToken = token.idToken as string;
       session.provider = token.provider as string;
       return session;

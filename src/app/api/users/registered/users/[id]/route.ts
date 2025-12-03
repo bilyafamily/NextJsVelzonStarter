@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { BACKEND_BASE_URL } from "src/constants/url";
 
-export async function GET(request: NextRequest) {
+export async function GET(
+  request: Request,
+  context: { params: Promise<{ id: string }> }
+) {
   try {
     const session = await auth();
 
@@ -10,7 +12,9 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const response = await fetch(`${BACKEND_BASE_URL}/sectors`, {
+    const { id } = await context.params;
+
+    const response = await fetch(`${process.env.API_URL}/users${id}`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${session.accessToken}`,
@@ -20,7 +24,6 @@ export async function GET(request: NextRequest) {
 
     if (!response.ok) {
       const errorText = await response.json();
-      console.error("Backend error:", errorText);
       return NextResponse.json(
         { error: `Backend error: ${response.status}` },
         { status: response.status }
@@ -39,18 +42,22 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function PUT(
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
   try {
     const session = await auth();
-
-    if (!session?.accessToken) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    const { id } = await context.params;
 
     const body = await request.json();
 
-    const response = await fetch(`${process.env.API_URL}/sectors`, {
-      method: "POST",
+    const response = await fetch(`${process.env.API_URL}/users/${id}`, {
+      method: "PUT",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${session.accessToken}`,
@@ -58,19 +65,11 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify(body),
     });
 
-    if (!response.ok) {
-      return NextResponse.json(
-        { error: `Backend error: ${response.status}` },
-        { status: response.status }
-      );
-    }
-
-    const data = await response.json();
-    return NextResponse.json(data);
+    return NextResponse.json(response);
   } catch (error) {
-    console.error("Error creating sector:", error);
+    console.error("Error updating ticket:", error);
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: "Internal Server Error" },
       { status: 500 }
     );
   }

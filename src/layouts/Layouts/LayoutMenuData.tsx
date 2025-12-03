@@ -12,6 +12,7 @@ const Navdata = () => {
   const [isBaseUi, setIsBaseUi] = useState<boolean>(false);
   const [isCharts, setIsCharts] = useState<boolean>(false);
   const [isIcons, setIsIcons] = useState<boolean>(false);
+  const [isUsers, setIsUsers] = useState<boolean>(false);
 
   // Apps
   const [isCalendar, setCalendar] = useState<boolean>(false);
@@ -43,10 +44,6 @@ const Navdata = () => {
 
   // Charts
   const [isApex, setIsApex] = useState<boolean>(false);
-
-  // Multi Level
-  const [isLevel1, setIsLevel1] = useState<boolean>(false);
-  const [isLevel2, setIsLevel2] = useState<boolean>(false);
 
   const [iscurrentState, setIscurrentState] = useState("Dashboard");
 
@@ -1063,6 +1060,33 @@ const Navdata = () => {
           label: "Crypto SVG",
           link: "/icons/crypto",
           parentId: "icons",
+        },
+      ],
+    },
+    {
+      id: "users",
+      label: "User Management",
+      icon: "ri-group-line",
+      link: "/#",
+      click: function (e: any) {
+        e.preventDefault();
+        setIsUsers(!isUsers);
+        setIscurrentState("Users");
+        updateIconSidebar(e);
+      },
+      stateVariables: isUsers,
+      subItems: [
+        {
+          id: "staff",
+          label: "Staff Roles",
+          link: "/admin/users/staff",
+          parentId: "users",
+        },
+        {
+          id: "registered",
+          label: "Registered Users",
+          link: "/admin/users/registered",
+          parentId: "users",
         },
       ],
     },

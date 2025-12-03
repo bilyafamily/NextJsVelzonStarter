@@ -1,4 +1,3 @@
-import axios from "axios";
 import { apiClient } from "src/lib/api";
 import { ResponseDto } from "src/types/common";
 import { UpdateSectorDto } from "src/types/sector";

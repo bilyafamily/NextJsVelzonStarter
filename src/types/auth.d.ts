@@ -5,6 +5,13 @@ export interface JwtUser {
   roles: string[];
 }
 
+export interface JWTToken {
+  access_token?: string;
+  roles?: string[];
+  refresh_token?: string;
+  [key: string]: unknown;
+}
+
 export interface ChangePasswordDto {
   oldPassword: string;
   newPassword: string;
@@ -41,3 +48,32 @@ export interface AuthResponse {
   isSuccess: boolean;
   message: string;
 }
+
+export type GraphUser = {
+  "@odata.type": string;
+  id: string;
+  businessPhones: string[];
+  displayName: string;
+  givenName: string;
+  jobTitle: string;
+  mail: string;
+  mobilePhone: string | null;
+  officeLocation: string | null;
+  preferredLanguage: string | null;
+  surname: string;
+  userPrincipalName: string;
+  groupId?: string;
+  role?: string;
+};
+
+export interface GroupMember extends GraphUser {
+  groupId: string;
+  groupType: GroupType;
+}
+
+type GroupType =
+  | "administrator"
+  | "coordinator"
+  | "investigator"
+  | "senior manager"
+  | "reviewer";
