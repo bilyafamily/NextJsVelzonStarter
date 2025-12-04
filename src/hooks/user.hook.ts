@@ -70,8 +70,8 @@ export function useCreateUser() {
 export function useUpdateUser() {
   const queryClient = useQueryClient();
 
-  return useMutation<UserDto, Error, { userId: string; data: UpdateUserDto }>({
-    mutationFn: ({ userId, data }) => userService.updateUser(userId, data),
+  return useMutation<ResponseDto, Error, UpdateUserDto>({
+    mutationFn: data => userService.updateUser(data),
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: userKeys.lists() });
       queryClient.invalidateQueries({

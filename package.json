@@ -61,6 +61,7 @@
     "i18next": "25.2.0",
     "i18next-browser-languagedetector": "8.1.0",
     "js-cookie": "^3.0.5",
+    "jwt-decode": "^4.0.0",
     "lodash": "^4.17.21",
     "lucide-react": "^0.555.0",
     "moment": "^2.30.1",

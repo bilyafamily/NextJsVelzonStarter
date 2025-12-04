@@ -22,10 +22,12 @@ export interface CreateUserDto {
 }
 
 export interface UpdateUserDto {
+  userId: string;
   firstName?: string;
   lastName?: string;
   phoneNumber?: string;
   isActive?: boolean;
+  password?: string;
 }
 
 export interface ResetPasswordDto {

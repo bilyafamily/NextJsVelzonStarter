@@ -30,7 +30,7 @@ interface UserDetailsModalProps {
   isOpen: boolean;
   toggle: () => void;
   user: any;
-  onEdit: () => void;
+  onEdit: (user: any) => void;
   onResetPassword: () => void;
   onToggleStatus: () => void;
   onManageRoles: () => void;
@@ -198,7 +198,7 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
         <div className="d-flex flex-wrap gap-2 w-100">
           <Button
             color="primary"
-            onClick={onEdit}
+            onClick={() => onEdit(user)}
             className="d-flex align-items-center gap-2 flex-grow-1"
           >
             <Edit2 size={16} />

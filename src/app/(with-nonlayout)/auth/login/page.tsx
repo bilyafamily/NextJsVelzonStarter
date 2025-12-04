@@ -78,7 +78,6 @@ const Login = () => {
   });
 
   const handleAzureLogin = async () => {
-    console.log("CALLLED");
     await signIn("microsoft-entra-id", {
       redirect: true,
       redirectTo: "/dashboard",
@@ -227,7 +226,7 @@ const Login = () => {
                           </Button>
                         </div>
 
-                        <div className="mt-4 text-center">
+                        {/* <div className="mt-4 text-center">
                           <div className="signin-other-title">
                             <h5 className="fs-13 mb-4 title">Sign In with</h5>
                           </div>
@@ -257,7 +256,7 @@ const Login = () => {
                               <i className="ri-twitter-fill fs-16"></i>
                             </Button>
                           </div>
-                        </div>
+                        </div> */}
                       </Form>
                     </div>
                   </CardBody>

@@ -31,12 +31,13 @@ export const userService = {
     return response;
   },
 
-  async updateUser(userId: string, data: UpdateUserDto): Promise<UserDto> {
-    const response = await apiClient.put<ResponseDto>(
+  async updateUser(data: UpdateUserDto): Promise<ResponseDto> {
+    const { userId, ...payload } = data;
+    const response = await apiClient.put<any>(
       `/users/registered/users/${userId}`,
-      data
+      payload
     );
-    return response.result;
+    return response;
   },
 
   async toggleUserStatus(userId: string, isActive: boolean): Promise<UserDto> {

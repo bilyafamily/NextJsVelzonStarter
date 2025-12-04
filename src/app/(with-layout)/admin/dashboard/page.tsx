@@ -46,10 +46,6 @@ const Dashboard = () => {
           </Row>
         </div>
       </Col>
-      {/* <RecentActivity
-        rightColumn={rightColumn}
-        hideRightColumn={toggleRightColumn}
-      /> */}
     </Row>
   );
 };

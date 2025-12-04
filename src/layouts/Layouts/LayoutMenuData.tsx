@@ -12,6 +12,7 @@ const Navdata = () => {
   const [isBaseUi, setIsBaseUi] = useState<boolean>(false);
   const [isCharts, setIsCharts] = useState<boolean>(false);
   const [isIcons, setIsIcons] = useState<boolean>(false);
+  const [isAdministration, setIsAdministration] = useState<boolean>(false);
   const [isUsers, setIsUsers] = useState<boolean>(false);
 
   // Apps
@@ -130,6 +131,103 @@ const Navdata = () => {
           parentId: "dashboard",
           badgeColor: "success",
           badgeName: "New",
+        },
+      ],
+    },
+    {
+      id: "administration",
+      label: "Incident Administration",
+      icon: "ri-pages-line",
+      link: "/#",
+      stateVariables: isAdministration,
+      click: function (e: any) {
+        e.preventDefault();
+        setIsAdministration(!isAdministration);
+        setIscurrentState("Administration");
+        updateIconSidebar(e);
+      },
+
+      subItems: [
+        {
+          id: "dashboard",
+          label: "Dashboard",
+          link: "/admin/dashboard",
+          parentId: "administration",
+        },
+        {
+          id: "facilities",
+          label: "Facilities",
+          link: "/admin/facilities",
+          parentId: "administration",
+        },
+        {
+          id: "companies",
+          label: "Companies",
+          link: "/admin/companies",
+          parentId: "administration",
+        },
+        {
+          id: "facilityTypes",
+          label: "Facility Types",
+          link: "/admin/facility-types",
+          parentId: "administration",
+        },
+        {
+          id: "installationTypes",
+          label: "Installation Types",
+          link: "/admin/installation-types",
+          parentId: "administration",
+        },
+        {
+          id: "incidentTypes",
+          label: "Incident Types",
+          link: "/admin/incident-types",
+          parentId: "administration",
+        },
+        {
+          id: "injuries",
+          label: "Injury Types",
+          link: "/admin/injury-types",
+          parentId: "administration",
+        },
+        {
+          id: "injuries",
+          label: "Injury Types",
+          link: "/admin/injury-types",
+          parentId: "administration",
+        },
+        {
+          id: "smes",
+          label: "SME's",
+          link: "/admin/smes",
+          parentId: "administration",
+        },
+      ],
+    },
+    {
+      id: "users",
+      label: "User Management",
+      icon: "ri-group-line",
+      link: "/#",
+      click: function (e: any) {
+        e.preventDefault();
+        setIsUsers(!isUsers);
+        setIscurrentState("Users");
+        updateIconSidebar(e);
+      },
+      stateVariables: isUsers,
+      subItems: [
+        {
+          id: "staff",
+          label: "Staff Roles",
+          link: "/admin/users/staff",
+          parentId: "users",
+        },
+        {
+          id: "registered",
+          label: "Registered Users",
+          link: "/admin/users/registered",
+          parentId: "users",
         },
       ],
     },
@@ -1060,33 +1158,6 @@ const Navdata = () => {
           label: "Crypto SVG",
           link: "/icons/crypto",
           parentId: "icons",
-        },
-      ],
-    },
-    {
-      id: "users",
-      label: "User Management",
-      icon: "ri-group-line",
-      link: "/#",
-      click: function (e: any) {
-        e.preventDefault();
-        setIsUsers(!isUsers);
-        setIscurrentState("Users");
-        updateIconSidebar(e);
-      },
-      stateVariables: isUsers,
-      subItems: [
-        {
-          id: "staff",
-          label: "Staff Roles",
-          link: "/admin/users/staff",
-          parentId: "users",
-        },
-        {
-          id: "registered",
-          label: "Registered Users",
-          link: "/admin/users/registered",
-          parentId: "users",
         },
       ],
     },

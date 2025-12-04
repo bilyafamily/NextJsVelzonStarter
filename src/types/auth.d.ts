@@ -44,6 +44,7 @@ export interface AuthResponse {
     userId: string;
     email: string;
     name: string;
+    roles?: [];
   };
   isSuccess: boolean;
   message: string;
@@ -77,3 +78,23 @@ type GroupType =
   | "investigator"
   | "senior manager"
   | "reviewer";
+
+export enum Roles {
+  Admin = "IRP",
+  Sme = "IRP.Investigator",
+}
+
+interface DecodedIdToken extends JwtPayload {
+  roles?: string[];
+  exp: number;
+}
+
+export interface CredentialsToken extends JwtPayload {
+  sub: string;
+  unique_name: string;
+  email: string;
+  "http://schemas.microsoft.com/ws/2008/06/identity/claims/role": string[];
+  exp: number;
+  iss: string;
+  aud: string;
+}

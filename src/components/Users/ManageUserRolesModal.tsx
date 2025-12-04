@@ -53,8 +53,8 @@ const ManageUserRolesModal: React.FC<ManageUserRolesModalProps> = ({
 
     setIsAssigning(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API call
       onAssignRole(user.id, roleName);
+      toggle();
     } finally {
       setIsAssigning(false);
     }
@@ -65,7 +65,6 @@ const ManageUserRolesModal: React.FC<ManageUserRolesModalProps> = ({
 
     setIsRemoving(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API call
       onRemoveRole(user.id, roleName);
     } finally {
       setIsRemoving(false);
@@ -126,11 +125,11 @@ const ManageUserRolesModal: React.FC<ManageUserRolesModalProps> = ({
           <h6 className="fw-semibold mb-3">Current Roles</h6>
           {assignedRoles.length > 0 ? (
             <div className="d-flex flex-wrap gap-2">
-              {assignedRoles.map((roleName: string) => {
+              {assignedRoles.map((roleName: string, index: number) => {
                 const roleInfo = roles.find(r => r.name === roleName);
                 return (
                   <Badge
-                    key={roleName}
+                    key={index}
                     color="primary"
                     pill
                     className="p-2 d-flex align-items-center gap-2"
@@ -193,7 +192,7 @@ const ManageUserRolesModal: React.FC<ManageUserRolesModalProps> = ({
               {availableRoles.map(role => (
                 <Badge
                   key={role.name}
-                  color="light"
+                  color="secondary"
                   pill
                   className="p-2 d-flex align-items-center gap-2 cursor-pointer border"
                   onClick={() => handleAssignRole(role.name)}

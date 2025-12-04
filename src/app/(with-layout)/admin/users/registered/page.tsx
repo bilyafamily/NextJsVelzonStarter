@@ -36,7 +36,7 @@ import {
 import { ColumnDef } from "@tanstack/react-table";
 import UserManagementTable from "@/components/Tables/UserManagementTable";
 import BreadCrumb from "@common/BreadCrumb";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import {
   useGetUsers,
@@ -45,13 +45,13 @@ import {
   useAssignRole,
   useRemoveRole,
   useDeleteRole,
-  useCreateRole,
 } from "@/hooks/user.hook";
 import CreateUserModal from "@/components/Users/CreateUserModal";
 import ResetPasswordModal from "@/components/Users/ResetPasswordModal";
 import ManageUserRolesModal from "@/components/Users/ManageUserRolesModal";
 import CreateRoleModal from "@/components/Users/CreateRoleModal";
 import UserDetailsModal from "src/components/Users/UserDetailsModal";
+import DeleteModal from "src/components/Common/DeleteModal";
 
 const UsersManagementPage = () => {
   const [selectedUser, setSelectedUser] = useState<any>(null);
@@ -62,6 +62,20 @@ const UsersManagementPage = () => {
   const [deleteRoleModalOpen, setDeleteRoleModalOpen] = useState(false);
   const [roleToDelete, setRoleToDelete] = useState<string>("");
   const [selectedFilter, setSelectedFilter] = useState<string>("all");
+
+  const [confirmDeleteRoleModal, setConfirmDeleteRoleModal] = useState(false);
+  const [userRoleToDelete, setUserRoleToDelete] = useState({
+    userId: "",
+    roleName: "",
+  });
+
+  const [isEditUserModalOpen, setIsEditUserModalOpen] = useState(false);
+  const [userToEdit, setUserToEdit] = useState<any>(null);
+
+  const handleEditUser = (user: any) => {
+    setUserToEdit(user);
+    setIsEditUserModalOpen(true);
+  };
 
   const {
     data: users = [],
@@ -297,18 +311,57 @@ const UsersManagementPage = () => {
 
   const handleViewDetails = (user: any) => {
     setSelectedUser(user);
-    // You can implement a user details modal here
-    toast.info(`Viewing details for ${user.fullName}`);
   };
 
   const handleAssignRole = (userId: string, roleName: string) => {
-    assignRoleMutation.mutate({ userId, roleName });
+    assignRoleMutation.mutate(
+      { userId, roleName },
+      {
+        onSuccess: () => {
+          const updatedUser = users.find(x => x.id === userId);
+          setSelectedUser((prev: any) => ({
+            ...prev,
+            roles: [...(updatedUser?.roles as any)],
+          }));
+        },
+      }
+    );
   };
 
   const handleRemoveRole = (userId: string, roleName: string) => {
-    if (window.confirm(`Remove ${roleName} role from this user?`)) {
-      removeRoleMutation.mutate({ userId, roleName });
-    }
+    setUserRoleToDelete({
+      userId,
+      roleName,
+    });
+    setConfirmDeleteRoleModal(true);
+    // if (window.confirm(`Remove ${roleName} role from this user?`)) {
+    //   removeRoleMutation.mutate(
+    //     { userId, roleName },
+    //     {
+    //       onSuccess: () => {
+    //         setManageRolesModalOpen(false);
+    //       },
+    //     }
+    //   );
+    // }
+  };
+
+  const removeUserRole = () => {
+    removeRoleMutation.mutate(
+      { userId: userRoleToDelete.userId, roleName: userRoleToDelete.roleName },
+      {
+        onSuccess: () => {
+          setConfirmDeleteRoleModal(false);
+          const updatedUser = users.find(x => x.id === userRoleToDelete.userId);
+          setSelectedUser((prev: any) => ({
+            ...prev,
+            roles: updatedUser?.roles.filter(
+              x => x === userRoleToDelete.roleName
+            ),
+          }));
+        },
+      }
+    );
   };
 
   const handleDeleteRole = (roleName: string) => {
@@ -437,7 +490,7 @@ const UsersManagementPage = () => {
         </Container>
       </div>
 
-      {/* Modals */}
+      {/* Creating new user modal */}
       <CreateUserModal
         isOpen={createUserModalOpen}
         toggle={() => setCreateUserModalOpen(false)}
@@ -445,7 +498,22 @@ const UsersManagementPage = () => {
         onSuccess={() => {
           refetch();
           setCreateUserModalOpen(false);
+          setUserToEdit(null);
         }}
+      />
+
+      {/* Edit user modal */}
+      <CreateUserModal
+        isOpen={isEditUserModalOpen}
+        toggle={() => setIsEditUserModalOpen(false)}
+        roles={roles}
+        onSuccess={() => {
+          refetch();
+          setIsEditUserModalOpen(false);
+          setUserToEdit(null);
+        }}
+        userToEdit={userToEdit}
+        setSelectedUser={setSelectedUser}
       />
 
       <ResetPasswordModal
@@ -454,7 +522,7 @@ const UsersManagementPage = () => {
         user={selectedUser}
         onSuccess={() => {
           setResetPasswordModalOpen(false);
-          setSelectedUser(null);
+          // setSelectedUser(null);
         }}
       />
 
@@ -484,11 +552,7 @@ const UsersManagementPage = () => {
       <UserDetailsModal
         isOpen={!!selectedUser}
         user={selectedUser}
-        onEdit={() => {
-          toast.info(
-            `Edit functionality for ${selectedUser?.fullName} would go here`
-          );
-        }}
+        onEdit={handleEditUser}
         onManageRoles={() => {
           if (selectedUser) {
             setManageRolesModalOpen(true);
@@ -524,6 +588,11 @@ const UsersManagementPage = () => {
         }}
       />
 
+      <DeleteModal
+        show={confirmDeleteRoleModal}
+        onDeleteClick={removeUserRole}
+        onCloseClick={() => setConfirmDeleteRoleModal(false)}
+      />
       {/* Delete Role Confirmation Modal */}
       <Modal
         isOpen={deleteRoleModalOpen}
@@ -576,8 +645,6 @@ const UsersManagementPage = () => {
           </Button>
         </ModalFooter>
       </Modal>
-
-      <ToastContainer position="top-right" autoClose={3000} />
     </>
   );
 };

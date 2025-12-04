@@ -65,7 +65,9 @@ export async function PUT(
       body: JSON.stringify(body),
     });
 
-    return NextResponse.json(response);
+    const data = await response.json();
+
+    return NextResponse.json(data);
   } catch (error) {
     console.error("Error updating ticket:", error);
     return NextResponse.json(
