@@ -39,8 +39,6 @@ const Login = () => {
 
   const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
 
-  console.log(callbackUrl);
-
   const [passwordShow, setPasswordShow] = useState<boolean>(false);
   const [loader, setLoader] = useState<boolean>(false);
 
@@ -80,7 +78,7 @@ const Login = () => {
   const handleAzureLogin = async () => {
     await signIn("microsoft-entra-id", {
       redirect: true,
-      redirectTo: "/dashboard",
+      redirectTo: "/admin/dashboard",
     });
   };
 

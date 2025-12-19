@@ -1,0 +1,128 @@
+import { Facility } from "./facility";
+
+export interface IncidentReport {
+  id: string;
+  incidentDetail: {
+    id: string;
+    facilityId: string;
+    accidentNature: string;
+    description: string;
+    incidentTypeId: string;
+    incidentReportId: string;
+    isWorkRelated: string;
+    incidentDate: string;
+    facility: Facility;
+    incidentType: IncidentType;
+  };
+  incidentConsequence: {
+    id: string;
+    assetDamageDescription: string;
+    incidentReportId: string;
+    assetDamages: AssetDamage[];
+  };
+  involvedPersons: IncidentInvoledPerson[];
+  witnesses: IncidentWitness[];
+  incidentAttachments: IncidentAttachment[];
+  status: IncidentStatus;
+  createdDate: string;
+}
+
+export interface CreateIncident {
+  incidentDetail: {
+    facilityId: string;
+    accidentNature: string;
+    description: string;
+    incidentTypeId: string;
+    isWorkRelated: string;
+    incidentDate: string;
+  };
+  incidentConsequence: {
+    assetDamageDescription: string;
+    assetDamages: AssetDamage[];
+  };
+  involvedPersons: CreatedInvoledPerson[];
+  witnesses: CreateIncidentWitness[];
+  incidentAttachments: File[];
+}
+
+export interface IncidentCreateResponse {
+  incidentId: string;
+}
+
+export interface CreatedInvoledPerson {
+  name: string;
+  designation: string;
+  employerName: string;
+  hospitalName: string;
+  hospitalized: string;
+  injuryTypeId: string;
+  dateOfDemise: string | null;
+}
+
+export interface CreateIncidentWitness {
+  name: string;
+  contactDetails: string;
+}
+
+export interface IncidentType {
+  id: string;
+  name: string;
+}
+
+export interface IncidentAttachment {
+  name: string;
+  size: string;
+}
+
+export interface IncidentWitness {
+  id: string;
+  name: string;
+  contactDetails: string;
+  incidentReportId: string;
+}
+
+export interface IncidentInjuryType {
+  id: string;
+  name: string;
+}
+
+export interface IncidentInvoledPerson {
+  id: string;
+  name: string;
+  designation: string;
+  employerName: string;
+  hospitalName: string;
+  hospitalized: string;
+  injuryTypeId: string;
+  dateOfDemise: string | null;
+  incidentReportId: string;
+  injuryType: IncidentInjuryType[];
+}
+
+export enum IncidentStatus {
+  "Completed",
+  "Under_Investigation",
+  "Submitted",
+  "Closed",
+}
+
+export interface AssetDamage {
+  id?: string;
+  assetName: string;
+  assetType: string;
+  damageDescription: string;
+}
+
+export interface NameItemInterface {
+  id: string;
+  name: string;
+}
+
+export interface CreateNameItemDto {
+  name: string;
+}
+
+export interface UpdateNameItemDto {
+  id: string;
+  name?: string;
+}

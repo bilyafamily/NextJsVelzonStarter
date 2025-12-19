@@ -1,12 +1,12 @@
 import { apiClient } from "src/lib/api";
 import { ResponseDto } from "src/types/common";
-import { UpdateSectorDto } from "src/types/sector";
+import { Sector, UpdateSectorDto } from "src/types/sector";
 
 export const getSectors = async () => {
   try {
-    const response = await apiClient.get<ResponseDto>("/sectors");
+    const response = await apiClient.get<ResponseDto<Sector[]>>("/sectors");
 
-    return response;
+    return response.result;
   } catch (error) {
     console.error("Error fetching sectors:", error);
   }
@@ -24,7 +24,6 @@ export const createSector = async (data: { name: string }) => {
 
 export const updateSector = async (data: UpdateSectorDto) => {
   const { id, ...payload } = data;
-  console.log("Updating sector with ID:", id);
   const response = await apiClient.put<ResponseDto>(`/sectors/${id}`, payload);
   return response;
 };

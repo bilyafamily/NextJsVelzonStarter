@@ -13,8 +13,10 @@ import {
   Spinner,
 } from "reactstrap";
 import { Lock, Home } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function SimpleUnauthorizedPage() {
+  const router = useRouter();
   return (
     <Container className="min-vh-100 d-flex align-items-center justify-content-center py-5">
       <Row className="justify-content-center w-100">

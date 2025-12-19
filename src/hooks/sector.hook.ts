@@ -23,7 +23,6 @@ export function useGetSectors() {
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
     retry: 1,
-    select: data => data?.result,
   });
 }
 
@@ -51,7 +50,6 @@ export function useUpdateSector() {
   return useMutation({
     mutationFn: (data: UpdateSectorDto) => updateSector(data),
     onSuccess: (data, variables: any) => {
-      console.log("Variables:", variables);
       // Invalidate both list and specific sector detail
       queryClient.invalidateQueries({ queryKey: sectorKeys.lists() });
       queryClient.invalidateQueries({

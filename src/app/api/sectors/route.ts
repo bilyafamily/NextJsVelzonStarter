@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { BACKEND_BASE_URL } from "src/constants/url";
 
 export async function GET(request: NextRequest) {
   try {
@@ -10,7 +9,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const response = await fetch(`${BACKEND_BASE_URL}/sectors`, {
+    const response = await fetch(`${process.env.API_URL}/Sectors`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${session.accessToken}`,

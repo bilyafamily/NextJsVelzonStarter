@@ -5,9 +5,10 @@ import { Col, Row } from "reactstrap";
 interface BreadCrumbProps {
   title: string;
   pageTitle: string;
+  parentLink?: string;
 }
 
-const BreadCrumb = ({ title, pageTitle }: BreadCrumbProps) => {
+const BreadCrumb = ({ title, pageTitle, parentLink }: BreadCrumbProps) => {
   return (
     <React.Fragment>
       <Row>
@@ -20,7 +21,9 @@ const BreadCrumb = ({ title, pageTitle }: BreadCrumbProps) => {
                 <li className="breadcrumb-item">
                   <Link href="#">{pageTitle}</Link>
                 </li>
-                <li className="breadcrumb-item active">{title}</li>
+                <li className="breadcrumb-item active">
+                  <Link href={parentLink ? parentLink : "#"}>{pageTitle}</Link>
+                </li>
               </ol>
             </div>
           </div>
