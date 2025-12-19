@@ -1,7 +1,29 @@
 import { Facility } from "./facility";
 
+export interface IncidentReportList {
+  incidentReportId: string;
+  facility: string;
+  company: string;
+  incidentType: string;
+  installationType: string;
+  facilityType: string;
+  status: string;
+  currentDesk: string;
+  state: string;
+  incidentDate: string;
+  // Additional fields that might be useful
+  reportedBy?: string;
+  reportedDate?: string;
+  severity?: string;
+  injuries?: number;
+  fatalities?: number;
+  investigationStatus?: string;
+}
+
 export interface IncidentReport {
   id: string;
+  currentDesk: string;
+  status: string;
   incidentDetail: {
     id: string;
     facilityId: string;
@@ -13,6 +35,8 @@ export interface IncidentReport {
     incidentDate: string;
     facility: Facility;
     incidentType: IncidentType;
+    createdAt: string;
+    updatedAt: string | null;
   };
   incidentConsequence: {
     id: string;
@@ -23,8 +47,9 @@ export interface IncidentReport {
   involvedPersons: IncidentInvoledPerson[];
   witnesses: IncidentWitness[];
   incidentAttachments: IncidentAttachment[];
-  status: IncidentStatus;
-  createdDate: string;
+  assetDamages: AssetDamage[];
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface CreateIncident {
@@ -70,8 +95,11 @@ export interface IncidentType {
 }
 
 export interface IncidentAttachment {
-  name: string;
-  size: string;
+  id: string;
+  fileUrl: string;
+  incidentReportId: string;
+  createdAt: string;
+  updatedAt?: string;
 }
 
 export interface IncidentWitness {
@@ -96,12 +124,12 @@ export interface IncidentInvoledPerson {
   injuryTypeId: string;
   dateOfDemise: string | null;
   incidentReportId: string;
-  injuryType: IncidentInjuryType[];
+  injuryType: IncidentInjuryType;
 }
 
 export enum IncidentStatus {
   "Completed",
-  "Under_Investigation",
+  "Under Investigation",
   "Submitted",
   "Closed",
 }

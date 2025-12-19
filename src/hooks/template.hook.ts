@@ -62,10 +62,6 @@ export const useCreateTemplate = () => {
         formData
       );
 
-      // const response = await apiClient.postFormData<ResponseDto<Template>>(
-      //   "/templates",
-      //   formData
-      // );
       return response;
     },
     onSuccess: () => {
@@ -84,8 +80,6 @@ export const useUpdateTemplate = () => {
 
   return useMutation({
     mutationFn: async ({ id, ...data }: UpdateTemplateDto) => {
-      console.log(data);
-      console.log(id);
       const formData = new FormData();
 
       if (data.name) formData.append("name", data.name);

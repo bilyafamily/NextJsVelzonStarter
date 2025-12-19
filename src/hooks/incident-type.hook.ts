@@ -1,89 +1,137 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
-import {
-  createIncidentType,
-  deleteIncidentType,
-  getIncidentTypes,
-  updateIncidentType,
-} from "src/services/incident-type.service";
-import { CreateNameItemDto, UpdateNameItemDto } from "src/types/incident";
 
-export const incidentTypeKeys = {
+import { CreateNameItemDto, UpdateNameItemDto } from "src/types/incident";
+import { useBackendApiClient } from "./backendApiClient.hook";
+import { IncidentType, QueryParams, ResponseDto } from "src/types/common";
+
+export const INCIDENT_TYPE_KEYS = {
   all: ["incidentTypes"] as const,
-  lists: () => [...incidentTypeKeys.all, "list"] as const,
+  lists: () => [...INCIDENT_TYPE_KEYS.all, "list"] as const,
   list: (filters: string) =>
-    [...incidentTypeKeys.lists(), { filters }] as const,
-  details: () => [...incidentTypeKeys.all, "detail"] as const,
-  detail: (id: string) => [...incidentTypeKeys.details(), id] as const,
+    [...INCIDENT_TYPE_KEYS.lists(), { filters }] as const,
+  details: () => [...INCIDENT_TYPE_KEYS.all, "detail"] as const,
+  detail: (id: string) => [...INCIDENT_TYPE_KEYS.details(), id] as const,
 };
 
-export function useGetIncidentTypes() {
+// Queries
+export const useGetIncidentTypes = (params: QueryParams = {}) => {
+  const { get } = useBackendApiClient();
+
   return useQuery({
-    queryKey: ["incidentTypes"],
-    queryFn: getIncidentTypes,
+    queryKey: INCIDENT_TYPE_KEYS.all,
+    queryFn: async () => {
+      const response = await get<ResponseDto<IncidentType[]>>(
+        "/incidentTypes",
+        {
+          params,
+        }
+      );
+      return response.result;
+    },
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
     retry: 1,
-    select: data => data?.result,
   });
-}
+};
 
-// Hook to create a new incidentType
-export function useCreateIncidentType() {
+export const useGetIncidentTypeById = (id: string) => {
+  const { get } = useBackendApiClient();
+
+  return useQuery({
+    queryKey: INCIDENT_TYPE_KEYS.detail(id),
+    queryFn: async () => {
+      const response = await get<ResponseDto<IncidentType>>(
+        `/incidentTypes/${id}`
+      );
+      return response;
+    },
+    enabled: !!id,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+  });
+};
+
+// Mutations
+export const useCreateIncidentType = () => {
+  const { post } = useBackendApiClient();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: CreateNameItemDto) => createIncidentType(data),
-    onSuccess: data => {
-      // Invalidate and refetch incidentTypes list
-      queryClient.invalidateQueries({ queryKey: incidentTypeKeys.lists() });
-
-      toast.success(`Incident type created successfully`);
+    mutationFn: async (data: CreateNameItemDto) => {
+      const response = await post<ResponseDto<IncidentType>>(
+        "/incidentTypes",
+        data
+      );
+      return response;
     },
-    onError: (error: Error) => {
-      toast.error(`Failed to create incident type: ${error.message}`);
+    onSuccess: response => {
+      queryClient.invalidateQueries({ queryKey: INCIDENT_TYPE_KEYS.lists() });
+      toast.success(response?.message || "Incident type created successfully");
+    },
+    onError: (error: any) => {
+      console.error("Error creating incident type:", error);
+      toast.error(
+        error?.response?.data?.message || "Failed to create incident type"
+      );
     },
   });
-}
+};
 
-// Hook to update a incidentType
-export function useUpdateIncidentType() {
+export const useUpdateIncidentType = () => {
   const queryClient = useQueryClient();
+  const { put } = useBackendApiClient();
+
   return useMutation({
-    mutationFn: (data: UpdateNameItemDto) => updateIncidentType(data),
-    onSuccess: (data, variables: any) => {
-      queryClient.invalidateQueries({ queryKey: incidentTypeKeys.lists() });
-      queryClient.invalidateQueries({
-        queryKey: incidentTypeKeys.detail(variables.id),
-      });
-      console.log("data", data);
-      console.log("variables", variables);
-
-      toast.success(`Incident type "${variables?.name}" updated successfully`);
+    mutationFn: async ({ id, ...data }: UpdateNameItemDto) => {
+      const response = await put<ResponseDto<IncidentType>>(
+        `/incidentTypes/${id}`,
+        data
+      );
+      return response;
     },
-    onError: (error: Error, variables) => {
-      toast.error(`Failed to update incidentType: ${error.message}`);
+    onSuccess: (response, variables) => {
+      queryClient.invalidateQueries({ queryKey: INCIDENT_TYPE_KEYS.lists() });
+      if (variables.id) {
+        queryClient.invalidateQueries({
+          queryKey: INCIDENT_TYPE_KEYS.detail(variables.id),
+        });
+      }
+      toast.success(
+        response?.message ||
+          `Incident type "${variables?.name}" updated successfully`
+      );
+    },
+    onError: (error: any, variables) => {
+      console.error("Error updating incident type:", error);
+      toast.error(
+        error?.response?.data?.message || "Failed to update incident type"
+      );
     },
   });
-}
+};
 
-// Hook to delete a incidentType
-export function useDeleteIncidentType() {
+export const useDeleteIncidentType = () => {
   const queryClient = useQueryClient();
+  const { deleteItem } = useBackendApiClient();
 
-  return useMutation<void, Error, string>({
-    mutationFn: (id: string) => deleteIncidentType(id),
-    onSuccess: (_, id) => {
-      // Invalidate incidentTypes list
-      queryClient.invalidateQueries({ queryKey: incidentTypeKeys.lists() });
-
-      // Remove the deleted incidentType from cache
-      queryClient.removeQueries({ queryKey: incidentTypeKeys.detail(id) });
-
-      toast.success("Incident type deleted successfully");
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const response = await deleteItem<ResponseDto<void>>(
+        `/incidentTypes/${id}`
+      );
+      return response;
     },
-    onError: (error: Error) => {
-      toast.error(`Failed to delete incidentType: ${error.message}`);
+    onSuccess: (response, id) => {
+      queryClient.invalidateQueries({ queryKey: INCIDENT_TYPE_KEYS.lists() });
+      queryClient.removeQueries({ queryKey: INCIDENT_TYPE_KEYS.detail(id) });
+      toast.success(response?.message || "Incident type deleted successfully");
+    },
+    onError: (error: any) => {
+      console.error("Error deleting incident type:", error);
+      toast.error(
+        error?.response?.data?.message || "Failed to delete incident type"
+      );
     },
   });
-}
+};

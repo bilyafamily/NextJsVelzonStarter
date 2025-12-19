@@ -8,14 +8,9 @@ import { useGetFacilities } from "@/hooks/facility.hook";
 import { useGetIncidentTypes } from "@/hooks/incident-type.hook";
 import { useCreateIncident } from "@/hooks/incident.hook";
 import { useGetInjuryTypes } from "@/hooks/injury-type.hook";
-import {
-  CreateIncident,
-  IncidentInjuryType,
-  IncidentType,
-} from "src/types/incident";
+import { CreateIncident } from "src/types/incident";
 
 function CreateIncidentPage() {
-  const [isLoading, setIsLoading] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<{
     type: "success" | "danger";
     message: string;
@@ -24,13 +19,8 @@ function CreateIncidentPage() {
   const incidentReportMutation = useCreateIncident();
   const router = useRouter();
 
-  const {
-    data: facilities,
-    isLoading: isLoadingFacilities,
-    error,
-    isError,
-    refetch,
-  } = useGetFacilities();
+  const { data: facilities, isLoading: isLoadingFacilities } =
+    useGetFacilities();
 
   const { data: injuryTypes } = useGetInjuryTypes();
 

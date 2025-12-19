@@ -20,6 +20,7 @@ import {
   useCreateFacility,
   useDeleteFacility,
   useGetFacilities,
+  useUpdateFacility,
 } from "@/hooks/facility.hook";
 import { useUpdateFacilityType } from "@/hooks/facility-type.hook";
 import FacilityForm from "src/components/Facility/FacilityForm";
@@ -149,7 +150,7 @@ const FacilitiesPage = () => {
   ];
 
   const createFacilityMutation = useCreateFacility();
-  const updateFacilityMutation = useUpdateFacilityType();
+  const updateFacilityMutation = useUpdateFacility();
 
   // Handle add facility
   const handleAddFacility = async (
@@ -161,7 +162,7 @@ const FacilitiesPage = () => {
   // Handle edit facility
   const handleEditFacility = async (
     id: string,
-    updatedData: Partial<CreateFacilityDto>
+    updatedData: Partial<Facility>
   ): Promise<ResponseDto<Facility>> => {
     return await updateFacilityMutation.mutateAsync({ id, ...updatedData });
   };

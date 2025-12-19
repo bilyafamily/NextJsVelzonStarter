@@ -1,91 +1,148 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
-import {
-  createInstallationType,
-  deleteInstallationType,
-  getInstallationTypes,
-  updateInstallationType,
-} from "src/services/installation-type.service";
 import { CreateNameItemDto, UpdateNameItemDto } from "src/types/incident";
+import { useBackendApiClient } from "./backendApiClient.hook";
+import { InstallationType, QueryParams, ResponseDto } from "src/types/common";
 
-export const installationTypeKeys = {
+export const INSTALLATION_TYPE_KEYS = {
   all: ["installationTypes"] as const,
-  lists: () => [...installationTypeKeys.all, "list"] as const,
+  lists: () => [...INSTALLATION_TYPE_KEYS.all, "list"] as const,
   list: (filters: string) =>
-    [...installationTypeKeys.lists(), { filters }] as const,
-  details: () => [...installationTypeKeys.all, "detail"] as const,
-  detail: (id: string) => [...installationTypeKeys.details(), id] as const,
+    [...INSTALLATION_TYPE_KEYS.lists(), { filters }] as const,
+  details: () => [...INSTALLATION_TYPE_KEYS.all, "detail"] as const,
+  detail: (id: string) => [...INSTALLATION_TYPE_KEYS.details(), id] as const,
 };
 
-export function useGetInstallationTypes() {
+// Queries
+export const useGetInstallationTypes = (params: QueryParams = {}) => {
+  const { get } = useBackendApiClient();
+
   return useQuery({
-    queryKey: ["installationTypes"],
-    queryFn: getInstallationTypes,
+    queryKey: INSTALLATION_TYPE_KEYS.all,
+    queryFn: async () => {
+      const response = await get<ResponseDto<InstallationType[]>>(
+        "/installationTypes",
+        {
+          params,
+        }
+      );
+      return response.result;
+    },
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
     retry: 1,
-    select: data => data?.result,
   });
-}
+};
 
-// Hook to create a new installationType
-export function useCreateInstallationType() {
+export const useGetInstallationTypeById = (id: string) => {
+  const { get } = useBackendApiClient();
+
+  return useQuery({
+    queryKey: INSTALLATION_TYPE_KEYS.detail(id),
+    queryFn: async () => {
+      const response = await get<ResponseDto<InstallationType>>(
+        `/installationTypes/${id}`
+      );
+      return response;
+    },
+    enabled: !!id,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+  });
+};
+
+// Mutations
+export const useCreateInstallationType = () => {
+  const { post } = useBackendApiClient();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: CreateNameItemDto) => createInstallationType(data),
-    onSuccess: data => {
-      // Invalidate and refetch installationTypes list
-      queryClient.invalidateQueries({ queryKey: installationTypeKeys.lists() });
-
-      toast.success(`Installation type created successfully`);
+    mutationFn: async (data: CreateNameItemDto) => {
+      const response = await post<ResponseDto<InstallationType>>(
+        "/installationTypes",
+        data
+      );
+      return response;
     },
-    onError: (error: Error) => {
-      toast.error(`Failed to create installation type: ${error.message}`);
-    },
-  });
-}
-
-// Hook to update a installationType
-export function useUpdateInstallationType() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (data: UpdateNameItemDto) => updateInstallationType(data),
-    onSuccess: (data, variables: any) => {
-      queryClient.invalidateQueries({ queryKey: installationTypeKeys.lists() });
+    onSuccess: response => {
       queryClient.invalidateQueries({
-        queryKey: installationTypeKeys.detail(variables.id),
+        queryKey: INSTALLATION_TYPE_KEYS.lists(),
       });
-      console.log("data", data);
-      console.log("variables", variables);
-
       toast.success(
-        `Installation type "${variables?.name}" updated successfully`
+        response?.message || "Installation type created successfully"
       );
     },
-    onError: (error: Error, variables) => {
-      toast.error(`Failed to update installationType: ${error.message}`);
+    onError: (error: any) => {
+      console.error("Error creating installation type:", error);
+      toast.error(
+        error?.response?.data?.message || "Failed to create installation type"
+      );
     },
   });
-}
+};
 
-// Hook to delete a installationType
-export function useDeleteInstallationType() {
+export const useUpdateInstallationType = () => {
   const queryClient = useQueryClient();
+  const { put } = useBackendApiClient();
 
-  return useMutation<void, Error, string>({
-    mutationFn: (id: string) => deleteInstallationType(id),
-    onSuccess: (_, id) => {
-      // Invalidate installationTypes list
-      queryClient.invalidateQueries({ queryKey: installationTypeKeys.lists() });
-
-      // Remove the deleted installationType from cache
-      queryClient.removeQueries({ queryKey: installationTypeKeys.detail(id) });
-
-      toast.success("Installation type deleted successfully");
+  return useMutation({
+    mutationFn: async ({ id, ...data }: UpdateNameItemDto) => {
+      const response = await put<ResponseDto<InstallationType>>(
+        `/installationTypes/${id}`,
+        data
+      );
+      return response;
     },
-    onError: (error: Error) => {
-      toast.error(`Failed to delete installationType: ${error.message}`);
+    onSuccess: (response, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: INSTALLATION_TYPE_KEYS.lists(),
+      });
+      if (variables.id) {
+        queryClient.invalidateQueries({
+          queryKey: INSTALLATION_TYPE_KEYS.detail(variables.id),
+        });
+      }
+      toast.success(
+        response?.message ||
+          `Installation type "${variables?.name}" updated successfully`
+      );
+    },
+    onError: (error: any, variables) => {
+      console.error("Error updating installation type:", error);
+      toast.error(
+        error?.response?.data?.message || "Failed to update installation type"
+      );
     },
   });
-}
+};
+
+export const useDeleteInstallationType = () => {
+  const queryClient = useQueryClient();
+  const { deleteItem } = useBackendApiClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const response = await deleteItem<ResponseDto<void>>(
+        `/installationTypes/${id}`
+      );
+      return response;
+    },
+    onSuccess: (response, id) => {
+      queryClient.invalidateQueries({
+        queryKey: INSTALLATION_TYPE_KEYS.lists(),
+      });
+      queryClient.removeQueries({
+        queryKey: INSTALLATION_TYPE_KEYS.detail(id),
+      });
+      toast.success(
+        response?.message || "Installation type deleted successfully"
+      );
+    },
+    onError: (error: any) => {
+      console.error("Error deleting installation type:", error);
+      toast.error(
+        error?.response?.data?.message || "Failed to delete installation type"
+      );
+    },
+  });
+};

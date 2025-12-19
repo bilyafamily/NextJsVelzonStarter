@@ -1,27 +1,25 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
-import { getCompanies } from "@/services/companies.service";
-import {
-  createFacility,
-  getStates,
-  getFacilities,
-  deleteFacility,
-  getFacilityById,
-  updateFacility,
-} from "@/services/facility.service";
+import { useBackendApiClient } from "./backendApiClient.hook";
 import {
   CreateFacilityDto,
   Facility,
   GetFacilitiesParams,
 } from "@/types/facility";
-import { ResponseDto } from "src/types/common";
+import {
+  State,
+  InstallationType,
+  FacilityType,
+  ResponseDto,
+} from "src/types/common";
+import { Company } from "src/types/company";
 
 // Query keys
-export const facilityKeys = {
+export const FACILITY_KEYS = {
   all: ["facilities"] as const,
-  lists: () => [...facilityKeys.all, "list"] as const,
-  details: () => [...facilityKeys.all, "detail"] as const,
-  detail: (id: string) => [...facilityKeys.details(), id] as const,
+  lists: () => [...FACILITY_KEYS.all, "list"] as const,
+  details: () => [...FACILITY_KEYS.all, "detail"] as const,
+  detail: (id: string) => [...FACILITY_KEYS.details(), id] as const,
   states: ["states"] as const,
   lgas: (stateId: string) => ["lgas", stateId] as const,
   companies: ["companies"] as const,
@@ -29,97 +27,171 @@ export const facilityKeys = {
   facilityTypes: ["facilityTypes"] as const,
 };
 
+// Queries
 export const useGetFacilities = (params: GetFacilitiesParams = {}) => {
+  const { get } = useBackendApiClient();
+
   return useQuery({
-    queryKey: ["facilities", params],
-    queryFn: () => getFacilities(params),
+    queryKey: FACILITY_KEYS.all,
+    queryFn: async () => {
+      const response = await get<ResponseDto<Facility[]>>("/facilities", {
+        params,
+      });
+      return response.result;
+    },
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
   });
 };
 
-// Hook to get states
-export function useGetStates() {
+export const useGetStates = () => {
+  const { get } = useBackendApiClient();
+
   return useQuery({
-    queryKey: facilityKeys.states,
-    queryFn: getStates,
+    queryKey: FACILITY_KEYS.states,
+    queryFn: async () => {
+      const response = await get<ResponseDto<State[]>>("/states");
+      return response.result;
+    },
     staleTime: 10 * 60 * 1000, // 10 minutes
     gcTime: 15 * 60 * 1000, // 15 minutes
     retry: 1,
   });
-}
+};
 
-// Hook to get companies
-export function useGetCompanies() {
+export const useGetCompanies = () => {
+  const { get } = useBackendApiClient();
+
   return useQuery({
-    queryKey: facilityKeys.companies,
-    queryFn: getCompanies,
+    queryKey: FACILITY_KEYS.companies,
+    queryFn: async () => {
+      const response = await get<ResponseDto<Company[]>>("/companies");
+      return response.result;
+    },
     staleTime: 10 * 60 * 1000,
     gcTime: 15 * 60 * 1000,
     retry: 1,
   });
-}
+};
 
-// Hook to create a facility
-export function useCreateFacility() {
+export const useGetInstallationTypes = () => {
+  const { get } = useBackendApiClient();
+
+  return useQuery({
+    queryKey: FACILITY_KEYS.installationTypes,
+    queryFn: async () => {
+      const response =
+        await get<ResponseDto<InstallationType[]>>("/installationTypes");
+      return response.result;
+    },
+    staleTime: 10 * 60 * 1000,
+    gcTime: 15 * 60 * 1000,
+    retry: 1,
+  });
+};
+
+export const useGetFacilityTypes = () => {
+  const { get } = useBackendApiClient();
+
+  return useQuery({
+    queryKey: FACILITY_KEYS.facilityTypes,
+    queryFn: async () => {
+      const response = await get<ResponseDto<FacilityType[]>>("/facilityTypes");
+      return response.result;
+    },
+    staleTime: 10 * 60 * 1000,
+    gcTime: 15 * 60 * 1000,
+    retry: 1,
+  });
+};
+
+export const useGetFacilityById = (id: string) => {
+  const { get } = useBackendApiClient();
+
+  return useQuery({
+    queryKey: FACILITY_KEYS.detail(id),
+    queryFn: async () => {
+      const response = await get<ResponseDto<Facility>>(`/facilities/${id}`);
+      return response;
+    },
+    enabled: !!id,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+  });
+};
+
+// Mutations
+export const useCreateFacility = () => {
+  const { post } = useBackendApiClient();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: createFacility,
-    onSuccess: data => {
-      queryClient.invalidateQueries({ queryKey: facilityKeys.lists() });
-      toast.success("Facility created successfully!");
+    mutationFn: async (data: CreateFacilityDto) => {
+      const response = await post<ResponseDto<Facility>>("/facilities", data);
+      return response;
     },
-    onError: (error: Error) => {
-      toast.error(`Failed to create facility: ${error.message}`);
+    onSuccess: response => {
+      queryClient.invalidateQueries({ queryKey: FACILITY_KEYS.lists() });
+      toast.success(response?.message || "Facility created successfully!");
+    },
+    onError: (error: any) => {
+      console.error("Error creating facility:", error);
+      toast.error(
+        error?.response?.data?.message || "Failed to create facility"
+      );
     },
   });
-}
+};
 
-// Hook to delete a facilityType
-export function useDeleteFacility() {
+export const useUpdateFacility = () => {
   const queryClient = useQueryClient();
+  const { put } = useBackendApiClient();
 
-  return useMutation<ResponseDto<void>, Error, string>({
-    mutationFn: (id: string) => deleteFacility(id),
-    onSuccess: (_, id) => {
-      // Invalidate facilityTypes list
-      queryClient.invalidateQueries({ queryKey: facilityKeys.lists() });
-
-      // Remove the deleted facilityType from cache
-      queryClient.removeQueries({ queryKey: facilityKeys.detail(id) });
-
-      toast.success("Facility deleted successfully");
+  return useMutation({
+    mutationFn: async ({ id, ...data }: Partial<Facility>) => {
+      const response = await put<ResponseDto<Facility>>(
+        `/facilities/${id}`,
+        data
+      );
+      return response;
     },
-    onError: (error: Error) => {
-      toast.error(`Failed to delete facilityType: ${error.message}`);
+    onSuccess: (response, variables) => {
+      queryClient.invalidateQueries({ queryKey: FACILITY_KEYS.lists() });
+      if (variables.id) {
+        queryClient.invalidateQueries({
+          queryKey: FACILITY_KEYS.detail(variables.id),
+        });
+      }
+      toast.success(response?.message || "Facility updated successfully");
+    },
+    onError: (error: any) => {
+      console.error("Error updating facility:", error);
+      toast.error(
+        error?.response?.data?.message || "Failed to update facility"
+      );
     },
   });
-}
+};
 
-export function useGetFacilityById(id: string) {
-  return useQuery({
-    queryKey: facilityKeys.detail(id),
-    queryFn: () => getFacilityById(id),
-    enabled: !!id,
-  });
-}
-export function useUpdateFacility() {
+export const useDeleteFacility = () => {
   const queryClient = useQueryClient();
+  const { deleteItem } = useBackendApiClient();
 
-  return useMutation<ResponseDto<Facility>, Error, CreateFacilityDto>({
-    mutationFn: (data: CreateFacilityDto) => updateFacility(data),
-    onSuccess: (_, facility) => {
-      // Invalidate facilityTypes list
-      queryClient.invalidateQueries({ queryKey: facilityKeys.lists() });
-
-      // Remove the deleted facilityType from cache
-      queryClient.removeQueries({
-        queryKey: facilityKeys.detail(facility.id as string),
-      });
-
-      toast.success("Facility updated successfully");
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const response = await deleteItem<ResponseDto<void>>(`/facilities/${id}`);
+      return response;
     },
-    onError: (error: Error) => {
-      toast.error(`Failed to delete facilityType: ${error.message}`);
+    onSuccess: (response, id) => {
+      queryClient.invalidateQueries({ queryKey: FACILITY_KEYS.lists() });
+      queryClient.removeQueries({ queryKey: FACILITY_KEYS.detail(id) });
+      toast.success(response?.message || "Facility deleted successfully");
+    },
+    onError: (error: any) => {
+      console.error("Error deleting facility:", error);
+      toast.error(
+        error?.response?.data?.message || "Failed to delete facility"
+      );
     },
   });
-}
+};

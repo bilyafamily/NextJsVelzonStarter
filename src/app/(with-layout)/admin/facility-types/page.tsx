@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Container, Row, Col, Card, CardBody } from "reactstrap";
+import { Container, Row, Col, Card, CardBody, Spinner } from "reactstrap";
 import NameItemManagementTable from "src/components/Tables/NameItemManagmentTable";
 import { FacilityType } from "src/types/common";
 import BreadCrumb from "src/components/Common/BreadCrumb";
@@ -11,12 +11,14 @@ import {
   useUpdateFacilityType,
   useDeleteFacilityType,
 } from "src/hooks/facility-type.hook";
+import ErrorPage from "src/components/Common/ErrorPage";
 
 const FacilityTypesPage = () => {
   const {
     data: facilityTypes,
     isLoading,
     error,
+    isError,
     refetch,
   } = useGetFacilityTypes();
   const createFacilityTypeMutation = useCreateFacilityType();
@@ -58,6 +60,14 @@ const FacilityTypesPage = () => {
       },
     });
   };
+
+  if (isLoading || !facilityTypes) {
+    return <Spinner />;
+  }
+
+  if (isError) {
+    return <ErrorPage error={error} isLoading={isLoading} refresh={refetch} />;
+  }
 
   return (
     <div className="page-content">

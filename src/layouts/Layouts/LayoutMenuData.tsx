@@ -9,7 +9,7 @@ const Navdata = () => {
   const [isApps, setIsApps] = useState<boolean>(false);
   const [isAuth, setIsAuth] = useState<boolean>(false);
   const [isPages, setIsPages] = useState<boolean>(false);
-  const [isBaseUi, setIsBaseUi] = useState<boolean>(false);
+  const [isDownload, setIsDownloadUi] = useState<boolean>(false);
   const [isCharts, setIsCharts] = useState<boolean>(false);
   const [isIcons, setIsIcons] = useState<boolean>(false);
   const [isAdministration, setIsAdministration] = useState<boolean>(false);
@@ -875,147 +875,27 @@ const Navdata = () => {
     },
 
     {
-      label: "Components",
+      label: "Downloads",
       isHeader: true,
     },
     {
-      id: "baseUi",
-      label: "Base UI",
+      id: "downloads",
+      label: "Downloads",
       icon: "ri-pencil-ruler-2-line",
       link: "/#",
       click: function (e: any) {
         e.preventDefault();
-        setIsBaseUi(!isBaseUi);
-        setIscurrentState("BaseUi");
+        setIsDownloadUi(!isDownload);
+        setIscurrentState("Downloads");
         updateIconSidebar(e);
       },
-      stateVariables: isBaseUi,
+      stateVariables: isDownload,
       subItems: [
         {
-          id: "alerts",
-          label: "Alerts",
-          link: "/ui/alerts",
-          parentId: "baseUi",
-        },
-        {
-          id: "badges",
-          label: "Badges",
-          link: "/ui/badges",
-          parentId: "baseUi",
-        },
-        {
-          id: "buttons",
-          label: "Buttons",
-          link: "/ui/buttons",
-          parentId: "baseUi",
-        },
-        {
-          id: "colors",
-          label: "Colors",
-          link: "/ui/colors",
-          parentId: "baseUi",
-        },
-        { id: "cards", label: "Cards", link: "/ui/cards", parentId: "baseUi" },
-        {
-          id: "carousel",
-          label: "Carousel",
-          link: "/ui/carousel",
-          parentId: "baseUi",
-        },
-        {
-          id: "dropdowns",
-          label: "Dropdowns",
-          link: "/ui/dropdowns",
-          parentId: "baseUi",
-        },
-        { id: "grid", label: "Grid", link: "/ui/grid", parentId: "baseUi" },
-        {
-          id: "images",
-          label: "Images",
-          link: "/ui/images",
-          parentId: "baseUi",
-        },
-        { id: "tabs", label: "Tabs", link: "/ui/tabs", parentId: "baseUi" },
-        {
-          id: "accordions",
-          label: "Accordion & Collapse",
-          link: "/ui/accordions",
-          parentId: "baseUi",
-        },
-        {
-          id: "modals",
-          label: "Modals",
-          link: "/ui/modals",
-          parentId: "baseUi",
-        },
-        {
-          id: "offcanvas",
-          label: "Offcanvas",
-          link: "/ui/offcanvas",
-          parentId: "baseUi",
-        },
-        {
-          id: "placeholders",
-          label: "Placeholders",
-          link: "/ui/placeholders",
-          parentId: "baseUi",
-        },
-        {
-          id: "progress",
-          label: "Progress",
-          link: "/ui/progress",
-          parentId: "baseUi",
-        },
-        {
-          id: "notifications",
-          label: "Notifications",
-          link: "/ui/notifications",
-          parentId: "baseUi",
-        },
-        {
-          id: "media",
-          label: "Media object",
-          link: "/ui/media",
-          parentId: "baseUi",
-        },
-        {
-          id: "embedvideo",
-          label: "Embed Video",
-          link: "/ui/embed-video",
-          parentId: "baseUi",
-        },
-        {
-          id: "typography",
-          label: "Typography",
-          link: "/ui/typography",
-          parentId: "baseUi",
-        },
-        { id: "lists", label: "Lists", link: "/ui/lists", parentId: "baseUi" },
-        {
-          id: "links",
-          label: "Links",
-          link: "/ui/links",
-          parentId: "baseUi",
-          badgeColor: "success",
-          badgeName: "New",
-        },
-        {
-          id: "general",
-          label: "General",
-          link: "/ui/general",
-          parentId: "baseUi",
-        },
-        {
-          id: "ribbons",
-          label: "Ribbons",
-          link: "/ui/ribbons",
-          parentId: "baseUi",
-        },
-        {
-          id: "utilities",
-          label: "Utilities",
-          link: "/ui/utilities",
-          parentId: "baseUi",
+          id: "templates",
+          label: "Report Templates",
+          link: "/templates",
+          parentId: "downloads",
         },
       ],
     },
@@ -1029,138 +909,6 @@ const Navdata = () => {
         e.preventDefault();
         setIscurrentState("Widgets");
       },
-    },
-
-    {
-      id: "charts",
-      label: "Charts",
-      icon: "ri-pie-chart-line",
-      link: "/#",
-      click: function (e: any) {
-        e.preventDefault();
-        setIsCharts(!isCharts);
-        setIscurrentState("Charts");
-        updateIconSidebar(e);
-      },
-      stateVariables: isCharts,
-      subItems: [
-        {
-          id: "apexcharts",
-          label: "Apexcharts",
-          link: "/#",
-          isChildItem: true,
-          click: function (e: any) {
-            e.preventDefault();
-            setIsApex(!isApex);
-          },
-          stateVariables: isApex,
-          childItems: [
-            { id: 1, label: "Line", link: "/charts/apex-line" },
-            { id: 2, label: "Area", link: "/charts/apex-area" },
-            { id: 3, label: "Column", link: "/charts/apex-column" },
-            { id: 4, label: "Bar", link: "/charts/apex-bar" },
-            { id: 5, label: "Mixed", link: "/charts/apex-mixed" },
-            { id: 6, label: "Timeline", link: "/charts/apex-timeline" },
-            {
-              id: 7,
-              label: "Range Area",
-              link: "/charts/apex-range-area",
-              parentId: "apexcharts",
-              badgeColor: "success",
-              badgeName: "New",
-            },
-            {
-              id: 8,
-              label: "Funnel",
-              link: "/charts/apex-funnel",
-              parentId: "apexcharts",
-              badgeColor: "success",
-              badgeName: "New",
-            },
-            { id: 9, label: "Candlstick", link: "/charts/apex-candlestick" },
-            { id: 10, label: "Boxplot", link: "/charts/apex-boxplot" },
-            { id: 11, label: "Bubble", link: "/charts/apex-bubble" },
-            { id: 12, label: "Scatter", link: "/charts/apex-scatter" },
-            { id: 13, label: "Heatmap", link: "/charts/apex-heatmap" },
-            { id: 14, label: "Treemap", link: "/charts/apex-treemap" },
-            { id: 15, label: "Pie", link: "/charts/apex-pie" },
-            { id: 16, label: "Radialbar", link: "/charts/apex-radialbar" },
-            { id: 17, label: "Radar", link: "/charts/apex-radar" },
-            { id: 18, label: "Polar Area", link: "/charts/apex-polar" },
-            {
-              id: 19,
-              label: "Slope",
-              link: "/charts/apex-slope",
-              parentId: "charts",
-              badgeColor: "success",
-              badgeName: "New",
-            },
-          ],
-        },
-        {
-          id: "chartjs",
-          label: "Chartjs",
-          link: "/charts/chartjs",
-          parentId: "charts",
-        },
-        {
-          id: "echarts",
-          label: "Echarts",
-          link: "/charts/echarts",
-          parentId: "charts",
-        },
-      ],
-    },
-    {
-      id: "icons",
-      label: "Icons",
-      icon: "ri-compasses-2-line",
-      link: "/#",
-      click: function (e: any) {
-        e.preventDefault();
-        setIsIcons(!isIcons);
-        setIscurrentState("Icons");
-        updateIconSidebar(e);
-      },
-      stateVariables: isIcons,
-      subItems: [
-        {
-          id: "remix",
-          label: "Remix",
-          link: "/icons/remix",
-          parentId: "icons",
-        },
-        {
-          id: "boxicons",
-          label: "Boxicons",
-          link: "/icons/boxicons",
-          parentId: "icons",
-        },
-        {
-          id: "materialdesign",
-          label: "Material Design",
-          link: "/icons/materialdesign",
-          parentId: "icons",
-        },
-        {
-          id: "lineawesome",
-          label: "Line Awesome",
-          link: "/icons/lineawesome",
-          parentId: "icons",
-        },
-        {
-          id: "feather",
-          label: "Feather",
-          link: "/icons/feather",
-          parentId: "icons",
-        },
-        {
-          id: "crypto",
-          label: "Crypto SVG",
-          link: "/icons/crypto",
-          parentId: "icons",
-        },
-      ],
     },
   ];
   return <React.Fragment>{menuItems}</React.Fragment>;

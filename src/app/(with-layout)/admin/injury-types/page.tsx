@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Container, Row, Col, Card, CardBody } from "reactstrap";
+import { Container, Row, Col, Card, CardBody, Spinner } from "reactstrap";
 import NameItemManagementTable from "src/components/Tables/NameItemManagmentTable";
 import { InjuryType } from "src/types/common";
 import BreadCrumb from "src/components/Common/BreadCrumb";
@@ -11,9 +11,16 @@ import {
   useUpdateInjuryType,
   useDeleteInjuryType,
 } from "src/hooks/injury-type.hook";
+import ErrorPage from "src/components/Common/ErrorPage";
 
 const InjuryTypesPage = () => {
-  const { data: injuryTypes, isLoading, error, refetch } = useGetInjuryTypes();
+  const {
+    data: injuryTypes,
+    isLoading,
+    error,
+    refetch,
+    isError,
+  } = useGetInjuryTypes();
   const createInjuryMutation = useCreateInjuryType();
   const updateInjuryTypeMutation = useUpdateInjuryType();
   const deleteInjuryMutation = useDeleteInjuryType();
@@ -51,6 +58,14 @@ const InjuryTypesPage = () => {
       },
     });
   };
+
+  if (isLoading || !injuryTypes) {
+    return <Spinner />;
+  }
+
+  if (isError) {
+    return <ErrorPage error={error} isLoading={isLoading} refresh={refetch} />;
+  }
 
   return (
     <div className="page-content">
